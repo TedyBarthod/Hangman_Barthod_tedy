@@ -94,5 +94,26 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assete\Images\feuille_pleine.png" />
+    <Resource Include="Assete\Images\feuille_vide.png" />
+    <Resource Include="Assete\Images\fond_savane.png" />
+    <Resource Include="Assete\Images\pendu_1.png" />
+    <Resource Include="Assete\Images\pendu_2.png" />
+    <Resource Include="Assete\Images\pendu_3.png" />
+    <Resource Include="Assete\Images\pendu_4.png" />
+    <Resource Include="Assete\Images\pendu_5.png" />
+    <Resource Include="Assete\Images\pendu_6.png" />
+    <Resource Include="Assete\Images\pendu_7.png" />
+    <Resource Include="Assete\Images\pendu_8.png" />
+    <Resource Include="Assete\Images\vies_0.png" />
+    <Resource Include="Assete\Images\vies_1.png" />
+    <Resource Include="Assete\Images\vies_2.png" />
+    <Resource Include="Assete\Images\vies_3.png" />
+    <Resource Include="Assete\Images\vies_4.png" />
+    <Resource Include="Assete\Images\vies_5.png" />
+    <Resource Include="Assete\Images\vies_6.png" />
+    <Resource Include="Assete\Images\vies_7.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

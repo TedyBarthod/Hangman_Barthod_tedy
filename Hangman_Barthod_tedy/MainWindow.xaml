@@ -5,7 +5,106 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hangman_Barthod_tedy"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Hangman" Height="450" Width="800">
+
+    <!-- ===================== STYLES ===================== -->
+    <Window.Resources>
+
+        <!-- Style des boutons LETTRES (appliqué à tous les boutons par défaut) -->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#FFF9EE"/>
+            <Setter Property="Foreground" Value="#3B2414"/>
+            <Setter Property="BorderBrush" Value="#D2AD70"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <!-- Ombre en relief -->
+                            <Border CornerRadius="10" Margin="0,3,0,0"
+                                    Background="{TemplateBinding BorderBrush}"/>
+                            <!-- Tuile -->
+                            <Border x:Name="fond" CornerRadius="10" Margin="0,0,0,3"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <!-- Survol -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="fond" Property="BorderBrush" Value="#D9822B"/>
+                                <Setter TargetName="fond" Property="BorderThickness" Value="2.5"/>
+                            </Trigger>
+                            <!-- Clic : la tuile s'enfonce -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="fond" Property="Margin" Value="0,3,0,0"/>
+                            </Trigger>
+                            <!-- Lettre déjà jouée -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <!-- Lettre trouvée : btn.Tag = "ok"; -->
+                <Trigger Property="Tag" Value="ok">
+                    <Setter Property="Background" Value="#DCE8B8"/>
+                    <Setter Property="BorderBrush" Value="#6E8A3A"/>
+                    <Setter Property="Foreground" Value="#3F5A1F"/>
+                </Trigger>
+                <!-- Lettre absente : btn.Tag = "ko"; -->
+                <Trigger Property="Tag" Value="ko">
+                    <Setter Property="Background" Value="#F6CDBE"/>
+                    <Setter Property="BorderBrush" Value="#B5472F"/>
+                    <Setter Property="Foreground" Value="#8A2E1C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Style du bouton NOUVEAU MOT -->
+        <Style x:Key="BoutonAction" TargetType="Button">
+            <Setter Property="Background" Value="#B5472F"/>
+            <Setter Property="Foreground" Value="#FFF4E8"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border CornerRadius="12" Margin="0,3,0,0" Background="#7F2C1C"/>
+                            <Border x:Name="fond" CornerRadius="12" Margin="0,0,0,3"
+                                    Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="fond" Property="Background" Value="#C9583D"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="fond" Property="Margin" Value="0,3,0,0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- FOND SAVANE -->
+    <Window.Background>
+        <ImageBrush ImageSource="Assete/Images/fond_savane.png" Stretch="UniformToFill"/>
+    </Window.Background>
+
     <!-- GRID PRINCIPALE -->
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -18,15 +117,16 @@
         </Grid.RowDefinitions>
 
         <!-- GRID TITRE -->
-        <Grid Grid.Row="0" Background="LightBlue">
+        <Grid Grid.Row="0" Background="Transparent">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="160"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="HANGMAN" FontSize="28" FontWeight="Bold"
-                       VerticalAlignment="Center" Margin="10,0,0,0"/>
-            <Button x:Name="btnNewWord" Grid.Column="1" Content="Nouveau mot" Margin="10"/>
+            <TextBlock Grid.Column="0" Text="HANGMAN" FontSize="32" FontWeight="Black"
+                       Foreground="#3B2414" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            <Button x:Name="btnNewWord" Grid.Column="1" Content="Nouveau mot"
+                    Style="{StaticResource BoutonAction}" Margin="10,8"/>
         </Grid>
 
         <!-- GRID JEU (2 colonnes : pendu + mot | lettres) -->
@@ -37,7 +137,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- GRID GAUCHE : pendu + mot -->
-            <Grid Grid.Column="0" Background="LightGray">
+            <Grid Grid.Column="0" Background="Transparent">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <!-- Pendu -->
@@ -45,73 +145,85 @@
                     <!-- Mot -->
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="Pendu" FontSize="20"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Image x:Name="Img_Pendu" Grid.Row="0" Source="Assete/Images/pendu_1.png"
+                       Stretch="Uniform" Margin="5"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                <Border Grid.Row="1" Background="LightYellow" Margin="10">
+                <Border Grid.Row="1" Background="#EEFFF9EE" CornerRadius="12" Margin="10">
                     <TextBlock x:Name="txtMot" Text="_ _ _ _ _ _" FontSize="30" FontWeight="Bold"
-                               FontFamily="Consolas"
+                               FontFamily="Consolas" Foreground="#3B2414"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
             </Grid>
 
             <!-- GRID DROITE : lettres (7 lignes x 4 colonnes) -->
-            <Grid Grid.Column="1" Background="LightGreen">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <Border Grid.Column="1" Background="#DDFFF7E8" CornerRadius="12" Margin="10,0,0,0">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <Button x:Name="btnA" Grid.Row="0" Grid.Column="0" Content="A" Margin="3" FontSize="18"/>
-                <Button x:Name="btnB" Grid.Row="0" Grid.Column="1" Content="B" Margin="3" FontSize="18"/>
-                <Button x:Name="btnC" Grid.Row="0" Grid.Column="2" Content="C" Margin="3" FontSize="18"/>
-                <Button x:Name="btnD" Grid.Row="0" Grid.Column="3" Content="D" Margin="3" FontSize="18"/>
+                    <Button x:Name="btnA" Grid.Row="0" Grid.Column="0" Content="A"/>
+                    <Button x:Name="btnB" Grid.Row="0" Grid.Column="1" Content="B"/>
+                    <Button x:Name="btnC" Grid.Row="0" Grid.Column="2" Content="C"/>
+                    <Button x:Name="btnD" Grid.Row="0" Grid.Column="3" Content="D"/>
 
-                <Button x:Name="btnE" Grid.Row="1" Grid.Column="0" Content="E" Margin="3" FontSize="18"/>
-                <Button x:Name="btnF" Grid.Row="1" Grid.Column="1" Content="F" Margin="3" FontSize="18"/>
-                <Button x:Name="btnG" Grid.Row="1" Grid.Column="2" Content="G" Margin="3" FontSize="18"/>
-                <Button x:Name="btnH" Grid.Row="1" Grid.Column="3" Content="H" Margin="3" FontSize="18"/>
+                    <Button x:Name="btnE" Grid.Row="1" Grid.Column="0" Content="E"/>
+                    <Button x:Name="btnF" Grid.Row="1" Grid.Column="1" Content="F"/>
+                    <Button x:Name="btnG" Grid.Row="1" Grid.Column="2" Content="G"/>
+                    <Button x:Name="btnH" Grid.Row="1" Grid.Column="3" Content="H"/>
 
-                <Button x:Name="btnI" Grid.Row="2" Grid.Column="0" Content="I" Margin="3" FontSize="18"/>
-                <Button x:Name="btnJ" Grid.Row="2" Grid.Column="1" Content="J" Margin="3" FontSize="18"/>
-                <Button x:Name="btnK" Grid.Row="2" Grid.Column="2" Content="K" Margin="3" FontSize="18"/>
-                <Button x:Name="btnL" Grid.Row="2" Grid.Column="3" Content="L" Margin="3" FontSize="18"/>
+                    <Button x:Name="btnI" Grid.Row="2" Grid.Column="0" Content="I"/>
+                    <Button x:Name="btnJ" Grid.Row="2" Grid.Column="1" Content="J"/>
+                    <Button x:Name="btnK" Grid.Row="2" Grid.Column="2" Content="K"/>
+                    <Button x:Name="btnL" Grid.Row="2" Grid.Column="3" Content="L"/>
 
-                <Button x:Name="btnM" Grid.Row="3" Grid.Column="0" Content="M" Margin="3" FontSize="18"/>
-                <Button x:Name="btnN" Grid.Row="3" Grid.Column="1" Content="N" Margin="3" FontSize="18"/>
-                <Button x:Name="btnO" Grid.Row="3" Grid.Column="2" Content="O" Margin="3" FontSize="18"/>
-                <Button x:Name="btnP" Grid.Row="3" Grid.Column="3" Content="P" Margin="3" FontSize="18"/>
+                    <Button x:Name="btnM" Grid.Row="3" Grid.Column="0" Content="M"/>
+                    <Button x:Name="btnN" Grid.Row="3" Grid.Column="1" Content="N"/>
+                    <Button x:Name="btnO" Grid.Row="3" Grid.Column="2" Content="O"/>
+                    <Button x:Name="btnP" Grid.Row="3" Grid.Column="3" Content="P"/>
 
-                <Button x:Name="btnQ" Grid.Row="4" Grid.Column="0" Content="Q" Margin="3" FontSize="18"/>
-                <Button x:Name="btnR" Grid.Row="4" Grid.Column="1" Content="R" Margin="3" FontSize="18"/>
-                <Button x:Name="btnS" Grid.Row="4" Grid.Column="2" Content="S" Margin="3" FontSize="18"/>
-                <Button x:Name="btnT" Grid.Row="4" Grid.Column="3" Content="T" Margin="3" FontSize="18"/>
+                    <Button x:Name="btnQ" Grid.Row="4" Grid.Column="0" Content="Q"/>
+                    <Button x:Name="btnR" Grid.Row="4" Grid.Column="1" Content="R"/>
+                    <Button x:Name="btnS" Grid.Row="4" Grid.Column="2" Content="S"/>
+                    <Button x:Name="btnT" Grid.Row="4" Grid.Column="3" Content="T"/>
 
-                <Button x:Name="btnU" Grid.Row="5" Grid.Column="0" Content="U" Margin="3" FontSize="18"/>
-                <Button x:Name="btnV" Grid.Row="5" Grid.Column="1" Content="V" Margin="3" FontSize="18"/>
-                <Button x:Name="btnW" Grid.Row="5" Grid.Column="2" Content="W" Margin="3" FontSize="18"/>
-                <Button x:Name="btnX" Grid.Row="5" Grid.Column="3" Content="X" Margin="3" FontSize="18"/>
+                    <Button x:Name="btnU" Grid.Row="5" Grid.Column="0" Content="U"/>
+                    <Button x:Name="btnV" Grid.Row="5" Grid.Column="1" Content="V"/>
+                    <Button x:Name="btnW" Grid.Row="5" Grid.Column="2" Content="W"/>
+                    <Button x:Name="btnX" Grid.Row="5" Grid.Column="3" Content="X"/>
 
-                <Button x:Name="btnY" Grid.Row="6" Grid.Column="0" Content="Y" Margin="3" FontSize="18"/>
-                <Button x:Name="btnZ" Grid.Row="6" Grid.Column="1" Content="Z" Margin="3" FontSize="18"/>
-            </Grid>
+                    <Button x:Name="btnY" Grid.Row="6" Grid.Column="0" Content="Y"/>
+                    <Button x:Name="btnZ" Grid.Row="6" Grid.Column="1" Content="Z"/>
+                </Grid>
+            </Border>
         </Grid>
 
-        <!-- GRID ESSAIS -->
-        <Grid Grid.Row="2" Background="LightPink">
-            <TextBlock x:Name="txtEssais" Text="Essais restants : 6" FontSize="18"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Grid>
+        <!-- GRID ESSAIS : texte + 7 feuilles -->
+        <Border Grid.Row="2" Background="#DDFFF7E8" CornerRadius="12" Margin="0,5,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock x:Name="txtEssais" Text="Essais restants : 7" FontSize="18" FontWeight="Bold"
+                           Foreground="#3B2414" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <Image x:Name="Feuille1" Source="Assete/Images/feuille_pleine.png" Height="30" Margin="2,0"/>
+                <Image x:Name="Feuille2" Source="Assete/Images/feuille_pleine.png" Height="30" Margin="2,0"/>
+                <Image x:Name="Feuille3" Source="Assete/Images/feuille_pleine.png" Height="30" Margin="2,0"/>
+                <Image x:Name="Feuille4" Source="Assete/Images/feuille_pleine.png" Height="30" Margin="2,0"/>
+                <Image x:Name="Feuille5" Source="Assete/Images/feuille_pleine.png" Height="30" Margin="2,0"/>
+                <Image x:Name="Feuille6" Source="Assete/Images/feuille_pleine.png" Height="30" Margin="2,0"/>
+                <Image x:Name="Feuille7" Source="Assete/Images/feuille_pleine.png" Height="30" Margin="2,0"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
