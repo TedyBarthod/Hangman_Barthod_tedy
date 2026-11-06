@@ -7,10 +7,10 @@
         mc:Ignorable="d"
         Title="Hangman" Height="450" Width="800">
 
-    <!-- ===================== STYLES ===================== -->
+    <!-- Styles -->
     <Window.Resources>
 
-        <!-- Style des boutons LETTRES (appliqué à tous les boutons par défaut) -->
+        <!-- Style des boutons lettres (appliqué à tous les boutons par défaut) -->
         <Style TargetType="Button">
             <Setter Property="Background" Value="#FFF9EE"/>
             <Setter Property="Foreground" Value="#3B2414"/>
@@ -54,13 +54,13 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <!-- Lettre trouvée : btn.Tag = "ok"; -->
+                <!-- Lettre trouvée : btn.Tag = "ok" -->
                 <Trigger Property="Tag" Value="ok">
                     <Setter Property="Background" Value="#DCE8B8"/>
                     <Setter Property="BorderBrush" Value="#6E8A3A"/>
                     <Setter Property="Foreground" Value="#3F5A1F"/>
                 </Trigger>
-                <!-- Lettre absente : btn.Tag = "ko"; -->
+                <!-- Lettre absente : btn.Tag = "ko" -->
                 <Trigger Property="Tag" Value="ko">
                     <Setter Property="Background" Value="#F6CDBE"/>
                     <Setter Property="BorderBrush" Value="#B5472F"/>
@@ -69,7 +69,7 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Style du bouton NOUVEAU MOT -->
+        <!-- Style du bouton Nouveau mot -->
         <Style x:Key="BoutonAction" TargetType="Button">
             <Setter Property="Background" Value="#B5472F"/>
             <Setter Property="Foreground" Value="#FFF4E8"/>
@@ -100,12 +100,12 @@
         </Style>
     </Window.Resources>
 
-    <!-- FOND SAVANE -->
+    <!-- Fond savane -->
     <Window.Background>
         <ImageBrush ImageSource="Assete/Images/fond_savane.png" Stretch="UniformToFill"/>
     </Window.Background>
 
-    <!-- GRID PRINCIPALE -->
+    <!-- Grid principale -->
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
@@ -116,7 +116,7 @@
             <!-- Essais -->
         </Grid.RowDefinitions>
 
-        <!-- GRID TITRE -->
+        <!-- Grid titre -->
         <Grid Grid.Row="0" Background="Transparent">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -125,18 +125,19 @@
 
             <TextBlock Grid.Column="0" Text="HANGMAN" FontSize="32" FontWeight="Black"
                        Foreground="#3B2414" VerticalAlignment="Center" Margin="10,0,0,0"/>
-            <Button x:Name="btnNewWord" Grid.Column="1" Content="Nouveau mot"
-                    Style="{StaticResource BoutonAction}" Margin="10,8"/>
+            <Button x:Name="BTN_NouveauMot" Grid.Column="1" Content="Nouveau mot"
+                    Style="{StaticResource BoutonAction}" Margin="10,8"
+                    Click="BTN_NouveauMot_Click"/>
         </Grid>
 
-        <!-- GRID JEU (2 colonnes : pendu + mot | lettres) -->
+        <!-- Grid jeu (2 colonnes : pendu + mot | lettres) -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- GRID GAUCHE : pendu + mot -->
+            <!-- Grid gauche : pendu + mot -->
             <Grid Grid.Column="0" Background="Transparent">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -150,13 +151,13 @@
                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                 <Border Grid.Row="1" Background="#EEFFF9EE" CornerRadius="12" Margin="10">
-                    <TextBlock x:Name="txtMot" Text="_ _ _ _ _ _" FontSize="30" FontWeight="Bold"
+                    <TextBlock x:Name="TB_Mot" Text="_ _ _ _ _ _" FontSize="30" FontWeight="Bold"
                                FontFamily="Consolas" Foreground="#3B2414"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
             </Grid>
 
-            <!-- GRID DROITE : lettres (7 lignes x 4 colonnes) -->
+            <!-- Grid droite : lettres (7 lignes x 4 colonnes) -->
             <Border Grid.Column="1" Background="#DDFFF7E8" CornerRadius="12" Margin="10,0,0,0">
                 <Grid Margin="5">
                     <Grid.RowDefinitions>
@@ -175,46 +176,46 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="btnA" Grid.Row="0" Grid.Column="0" Content="A"/>
-                    <Button x:Name="btnB" Grid.Row="0" Grid.Column="1" Content="B"/>
-                    <Button x:Name="btnC" Grid.Row="0" Grid.Column="2" Content="C"/>
-                    <Button x:Name="btnD" Grid.Row="0" Grid.Column="3" Content="D"/>
+                    <Button x:Name="BTN_A" Grid.Row="0" Grid.Column="0" Content="A" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_B" Grid.Row="0" Grid.Column="1" Content="B" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_C" Grid.Row="0" Grid.Column="2" Content="C" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_D" Grid.Row="0" Grid.Column="3" Content="D" Click="BTN_Lettre_Click"/>
 
-                    <Button x:Name="btnE" Grid.Row="1" Grid.Column="0" Content="E"/>
-                    <Button x:Name="btnF" Grid.Row="1" Grid.Column="1" Content="F"/>
-                    <Button x:Name="btnG" Grid.Row="1" Grid.Column="2" Content="G"/>
-                    <Button x:Name="btnH" Grid.Row="1" Grid.Column="3" Content="H"/>
+                    <Button x:Name="BTN_E" Grid.Row="1" Grid.Column="0" Content="E" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_F" Grid.Row="1" Grid.Column="1" Content="F" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_G" Grid.Row="1" Grid.Column="2" Content="G" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_H" Grid.Row="1" Grid.Column="3" Content="H" Click="BTN_Lettre_Click"/>
 
-                    <Button x:Name="btnI" Grid.Row="2" Grid.Column="0" Content="I"/>
-                    <Button x:Name="btnJ" Grid.Row="2" Grid.Column="1" Content="J"/>
-                    <Button x:Name="btnK" Grid.Row="2" Grid.Column="2" Content="K"/>
-                    <Button x:Name="btnL" Grid.Row="2" Grid.Column="3" Content="L"/>
+                    <Button x:Name="BTN_I" Grid.Row="2" Grid.Column="0" Content="I" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_J" Grid.Row="2" Grid.Column="1" Content="J" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_K" Grid.Row="2" Grid.Column="2" Content="K" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_L" Grid.Row="2" Grid.Column="3" Content="L" Click="BTN_Lettre_Click"/>
 
-                    <Button x:Name="btnM" Grid.Row="3" Grid.Column="0" Content="M"/>
-                    <Button x:Name="btnN" Grid.Row="3" Grid.Column="1" Content="N"/>
-                    <Button x:Name="btnO" Grid.Row="3" Grid.Column="2" Content="O"/>
-                    <Button x:Name="btnP" Grid.Row="3" Grid.Column="3" Content="P"/>
+                    <Button x:Name="BTN_M" Grid.Row="3" Grid.Column="0" Content="M" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_N" Grid.Row="3" Grid.Column="1" Content="N" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_O" Grid.Row="3" Grid.Column="2" Content="O" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_P" Grid.Row="3" Grid.Column="3" Content="P" Click="BTN_Lettre_Click"/>
 
-                    <Button x:Name="btnQ" Grid.Row="4" Grid.Column="0" Content="Q"/>
-                    <Button x:Name="btnR" Grid.Row="4" Grid.Column="1" Content="R"/>
-                    <Button x:Name="btnS" Grid.Row="4" Grid.Column="2" Content="S"/>
-                    <Button x:Name="btnT" Grid.Row="4" Grid.Column="3" Content="T"/>
+                    <Button x:Name="BTN_Q" Grid.Row="4" Grid.Column="0" Content="Q" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_R" Grid.Row="4" Grid.Column="1" Content="R" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_S" Grid.Row="4" Grid.Column="2" Content="S" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_T" Grid.Row="4" Grid.Column="3" Content="T" Click="BTN_Lettre_Click"/>
 
-                    <Button x:Name="btnU" Grid.Row="5" Grid.Column="0" Content="U"/>
-                    <Button x:Name="btnV" Grid.Row="5" Grid.Column="1" Content="V"/>
-                    <Button x:Name="btnW" Grid.Row="5" Grid.Column="2" Content="W"/>
-                    <Button x:Name="btnX" Grid.Row="5" Grid.Column="3" Content="X"/>
+                    <Button x:Name="BTN_U" Grid.Row="5" Grid.Column="0" Content="U" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_V" Grid.Row="5" Grid.Column="1" Content="V" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_W" Grid.Row="5" Grid.Column="2" Content="W" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_X" Grid.Row="5" Grid.Column="3" Content="X" Click="BTN_Lettre_Click"/>
 
-                    <Button x:Name="btnY" Grid.Row="6" Grid.Column="0" Content="Y"/>
-                    <Button x:Name="btnZ" Grid.Row="6" Grid.Column="1" Content="Z"/>
+                    <Button x:Name="BTN_Y" Grid.Row="6" Grid.Column="0" Content="Y" Click="BTN_Lettre_Click"/>
+                    <Button x:Name="BTN_Z" Grid.Row="6" Grid.Column="1" Content="Z" Click="BTN_Lettre_Click"/>
                 </Grid>
             </Border>
         </Grid>
 
-        <!-- GRID ESSAIS : texte + 7 feuilles -->
+        <!-- Grid essais : texte + 7 feuilles -->
         <Border Grid.Row="2" Background="#DDFFF7E8" CornerRadius="12" Margin="0,5,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock x:Name="txtEssais" Text="Essais restants : 7" FontSize="18" FontWeight="Bold"
+                <TextBlock x:Name="TB_Essais" Text="Essais restants : 7" FontSize="18" FontWeight="Bold"
                            Foreground="#3B2414" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <Image x:Name="Feuille1" Source="Assete/Images/feuille_pleine.png" Height="30" Margin="2,0"/>
                 <Image x:Name="Feuille2" Source="Assete/Images/feuille_pleine.png" Height="30" Margin="2,0"/>
