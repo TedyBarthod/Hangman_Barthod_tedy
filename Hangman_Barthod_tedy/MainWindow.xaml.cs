@@ -1,8 +1,4 @@
-﻿// Projet : Hangman (jeu du pendu) - TP2 BTS CIEL 1
-// Auteur : Tedy Barthod
-// Rôle : gère le jeu (choix du mot, lettres, erreurs, chrono, musique)
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,7 +19,34 @@ namespace Hangman_Barthod_tedy
     public partial class MainWindow : Window
     {
         // Liste des mots possibles (en majuscules, sans accents)
-        string[] mots = { "GIRAFE", "LION", "ZEBRE", "ELEPHANT", "GAZELLE", "HYENE", "SAVANE", "BAOBAB" };
+        string[] mots = {  // animaux de la savane
+            "GIRAFE", "LION", "ZEBRE", "ELEPHANT", "GAZELLE", "HYENE",
+            "ANTILOPE", "GUEPARD", "LEOPARD", "RHINOCEROS", "HIPPOPOTAME",
+            "CROCODILE", "BUFFLE", "PHACOCHERE", "SURICATE", "AUTRUCHE",
+            "VAUTOUR", "CHACAL", "BABOUIN", "IMPALA", "GNOU", "CARACAL",
+            "SERVAL", "LYCAON", "MANGOUSTE", "PANGOLIN", "MARABOUT",
+            "FLAMANT", "CAMELEON", "PYTHON", "SCORPION", "TERMITE",
+            "ORYX", "KOUDOU", "DIKDIK", "CIGOGNE", "PELICAN", "AIGLE",
+            "FAUCON", "CALAO", "PINTADE", "COBRA", "LEZARD", "TORTUE",
+            "FOURMI", "CRIQUET", "MOUSTIQUE", "OKAPI", "GORILLE",
+            "CHIMPANZE", "SINGE", "MANDRILL", "ELAND", "SPRINGBOK",
+            "NYALA", "BUBALE", "FENNEC", "CIVETTE", "GENETTE", "RATEL",
+            "GRUE", "HERON", "IBIS", "TISSERIN", "OUTARDE", "MAMBA",
+            "VIPERE", "VARAN", "GRENOUILLE", "SCARABEE", "ARAIGNEE",
+            "LIBELLULE",
+            // la nature
+            "SAVANE", "BAOBAB", "ACACIA", "BROUSSE", "PLAINE", "OASIS",
+            "RIVIERE", "SECHERESSE", "HERBE", "BUISSON", "MARIGOT",
+            "COLLINE", "ROCHER", "SOLEIL", "CHALEUR", "POUSSIERE",
+            "SABLE", "DESERT", "DUNE", "VOLCAN", "MONTAGNE", "FLEUVE",
+            "CASCADE", "ORAGE", "NUAGE", "HORIZON", "CRATERE", "ARBRE",
+            // autour de la girafe
+            "CRINIERE", "SABOT", "TACHE", "TROUPEAU", "HERBIVORE",
+            "CARNIVORE", "PREDATEUR", "COU", "CORNE", "LANGUE",
+            "PELAGE", "QUEUE", "GIRAFON", "CHASSE",
+            // voyage
+            "SAFARI", "AFRIQUE", "KENYA", "TANZANIE", "JEEP", "PARC",
+            "RESERVE", "GUIDE", "JUMELLES", "CAMPEMENT", "BOUSSOLE" };
 
         // Sert à tirer un nombre au hasard
         Random hasard = new Random();
@@ -42,6 +65,11 @@ namespace Hangman_Barthod_tedy
 
         // Lecteur pour la musique du jeu
         MediaPlayer musique = new MediaPlayer();
+        string musiqueCalme = "Assete/Musique/calme.mp3";
+        string musiqueStress = "Assete/Musique/stress.mp3";
+        string musiqueVictoire = "Assete/Musique/victoire.mp3";
+        string musiqueDefaite = "Assete/Musique/defaite.mp3";
+        string musiqueActuelle = "";      // la musique qui joue en ce moment
 
         public MainWindow()
         {
@@ -58,16 +86,26 @@ namespace Hangman_Barthod_tedy
             timer.Interval = new TimeSpan(0, 0, 1);
             timer.Tick += new EventHandler(timer_tick);
 
-            LancerMusique();
+            JouerMusique(musiqueCalme);
             Recommencer();
         }
 
-        // Charge le fichier mp3 et lance la musique
-        private void LancerMusique()
+        // Charge le fichier mp3 donné et lance la musique
+        private void JouerMusique(string fichier)
         {
-            Uri chemin = new Uri(@"Assete/Musique/icsilviu-savanna-drum-circle-564074.mp3", UriKind.Relative);
+            Uri chemin = new Uri(fichier, UriKind.Relative);
             musique.Open(chemin);
             musique.Play();
+            musiqueActuelle = fichier;
+        }
+
+        // Quand il reste 15 secondes ou moins, on passe à la musique stressante
+        private void VerifierMusique()
+        {
+            if (temps <= 15 && musiqueActuelle == musiqueCalme && !partieFinie)
+            {
+                JouerMusique(musiqueStress);
+            }
         }
 
         // Remet tout à zéro et lance une nouvelle partie
@@ -76,6 +114,13 @@ namespace Hangman_Barthod_tedy
             erreurs = 0;
             temps = 60;
             partieFinie = false;
+
+            // Si une autre musique jouait, on remet la musique calme
+            if (musiqueActuelle != musiqueCalme)
+            {
+                JouerMusique(musiqueCalme);
+            }
+
             ChoisirMot();
             ActiverLettres();
             AfficherMot();
@@ -195,12 +240,14 @@ namespace Hangman_Barthod_tedy
                 partieFinie = true;
                 timer.Stop();
                 TB_Essais.Text = "Gagné ! Bravo !";
+                JouerMusique(musiqueVictoire);
             }
             else if (Perdu())
             {
                 partieFinie = true;
                 timer.Stop();
                 TB_Essais.Text = "Perdu ! Le mot était " + mot;
+                JouerMusique(musiqueDefaite);
             }
         }
 
@@ -210,6 +257,7 @@ namespace Hangman_Barthod_tedy
             temps = temps - 1;
             AfficherTemps();
             VerifierFin();
+            VerifierMusique();
         }
 
         // Clic sur une lettre (les 26 boutons appellent cette méthode)
@@ -251,6 +299,7 @@ namespace Hangman_Barthod_tedy
             AfficherPendu();
             AfficherTemps();
             VerifierFin();
+            VerifierMusique();
         }
 
         // Clic sur Nouveau mot
