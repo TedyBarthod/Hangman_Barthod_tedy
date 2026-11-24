@@ -1,8 +1,4 @@
-﻿// Projet : Hangman (jeu du pendu) - TP2 BTS CIEL 1
-// Auteur : Tedy Barthod
-// Rôle : gère le jeu (choix du mot, lettres, erreurs, chrono, musique)
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,16 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.IO;
 
 namespace Hangman_Barthod_tedy
 {
     public partial class MainWindow : Window
     {
-        // Liste des mots possibles (en majuscules, sans accents)
-        string[] mots = { "GIRAFE", "LION", "ZEBRE", "ELEPHANT", "GAZELLE", "HYENE", "SAVANE", "BAOBAB" };
-
-        // Sert à tirer un nombre au hasard
-        Random hasard = new Random();
+        // Objet qui contient la liste des mots (classe ListeMots, en bas du fichier)
+        ListeMots listeMots = new ListeMots();
 
         string mot = "";          // le mot à trouver
         string motAffiche = "";   // le mot avec des _ pour les lettres pas trouvées
@@ -42,6 +36,11 @@ namespace Hangman_Barthod_tedy
 
         // Lecteur pour la musique du jeu
         MediaPlayer musique = new MediaPlayer();
+        string musiqueCalme = "Assete/Musique/calme.mp3";
+        string musiqueStress = "Assete/Musique/stress.mp3";
+        string musiqueVictoire = "Assete/Musique/victoire.mp3";
+        string musiqueDefaite = "Assete/Musique/defaite.mp3";
+        string musiqueActuelle = "";      // la musique qui joue en ce moment
 
         public MainWindow()
         {
@@ -58,16 +57,39 @@ namespace Hangman_Barthod_tedy
             timer.Interval = new TimeSpan(0, 0, 1);
             timer.Tick += new EventHandler(timer_tick);
 
-            LancerMusique();
+            // Quand une musique est finie, on appelle MusiqueFinie
+            musique.MediaEnded += new EventHandler(MusiqueFinie);
+
+            JouerMusique(musiqueCalme);
             Recommencer();
         }
 
-        // Charge le fichier mp3 et lance la musique
-        private void LancerMusique()
+        // Charge le fichier mp3 donné et lance la musique
+        private void JouerMusique(string fichier)
         {
-            Uri chemin = new Uri(@"Assete/Musique/icsilviu-savanna-drum-circle-564074.mp3", UriKind.Relative);
+            Uri chemin = new Uri(fichier, UriKind.Relative);
             musique.Open(chemin);
             musique.Play();
+            musiqueActuelle = fichier;
+        }
+
+        // Appelée quand la musique arrive à la fin : on la relance
+        private void MusiqueFinie(object sender, EventArgs e)
+        {
+            // Pas de boucle pour la musique de victoire ou de défaite
+            if (!partieFinie)
+            {
+                JouerMusique(musiqueActuelle);
+            }
+        }
+
+        // Quand il reste 15 secondes ou moins, on passe à la musique stressante
+        private void VerifierMusique()
+        {
+            if (temps <= 15 && musiqueActuelle == musiqueCalme && !partieFinie)
+            {
+                JouerMusique(musiqueStress);
+            }
         }
 
         // Remet tout à zéro et lance une nouvelle partie
@@ -76,6 +98,13 @@ namespace Hangman_Barthod_tedy
             erreurs = 0;
             temps = 60;
             partieFinie = false;
+
+            // Si une autre musique jouait, on remet la musique calme
+            if (musiqueActuelle != musiqueCalme)
+            {
+                JouerMusique(musiqueCalme);
+            }
+
             ChoisirMot();
             ActiverLettres();
             AfficherMot();
@@ -85,10 +114,10 @@ namespace Hangman_Barthod_tedy
             timer.Start();
         }
 
-        // Tire un mot au hasard et prépare le mot caché
+        // Demande un mot à l'objet listeMots et prépare le mot caché
         private void ChoisirMot()
         {
-            mot = mots[hasard.Next(mots.Length)];
+            mot = listeMots.TirerMot();
 
             motAffiche = "";
             for (int i = 0; i < mot.Length; i++)
@@ -195,12 +224,20 @@ namespace Hangman_Barthod_tedy
                 partieFinie = true;
                 timer.Stop();
                 TB_Essais.Text = "Gagné ! Bravo !";
+                JouerMusique(musiqueVictoire);
             }
             else if (Perdu())
             {
                 partieFinie = true;
                 timer.Stop();
+
+                // Même si on perd à cause du temps, on montre la girafe triste
+                erreurs = erreursMax;
+                AfficherEssais();
+                AfficherPendu();
+
                 TB_Essais.Text = "Perdu ! Le mot était " + mot;
+                JouerMusique(musiqueDefaite);
             }
         }
 
@@ -210,6 +247,7 @@ namespace Hangman_Barthod_tedy
             temps = temps - 1;
             AfficherTemps();
             VerifierFin();
+            VerifierMusique();
         }
 
         // Clic sur une lettre (les 26 boutons appellent cette méthode)
@@ -251,12 +289,68 @@ namespace Hangman_Barthod_tedy
             AfficherPendu();
             AfficherTemps();
             VerifierFin();
+            VerifierMusique();
         }
 
         // Clic sur Nouveau mot
         private void BTN_NouveauMot_Click(object sender, RoutedEventArgs e)
         {
             Recommencer();
+        }
+    }
+
+    // Classe qui lit les mots dans le fichier et tire un mot au hasard
+    public class ListeMots
+    {
+        // Attributs
+        List<string> mots;   // la liste des mots possibles
+        Random hasard;       // sert à tirer un nombre au hasard
+        string chemin = @"Assete/motsPendu.txt";   // le fichier des mots
+
+        // Constructeur : il est appelé tout seul quand on fait new ListeMots()
+        public ListeMots()
+        {
+            hasard = new Random();
+            mots = new List<string>();
+            LireFichier();
+
+            // Si le fichier est vide ou absent, on met un mot de secours
+            if (mots.Count == 0)
+            {
+                mots.Add("GIRAFE");
+            }
+        }
+
+        // Lit le fichier ligne par ligne et ajoute chaque mot dans la liste
+        private void LireFichier()
+        {
+            // Si le fichier n'existe pas, on ne lit rien
+            if (!File.Exists(chemin))
+            {
+                return;
+            }
+
+            using (var monFichier = File.OpenText(chemin))
+            {
+                string ligne = null;
+                do
+                {
+                    ligne = monFichier.ReadLine();
+
+                    // On ajoute le mot seulement si la ligne n'est pas vide
+                    if (ligne != null && ligne != "")
+                    {
+                        mots.Add(ligne);
+                    }
+                } while (ligne != null);
+            }
+        }
+
+        // Renvoie un mot tiré au hasard dans la liste
+        public string TirerMot()
+        {
+            int numero = hasard.Next(mots.Count);
+            return mots[numero];
         }
     }
 }

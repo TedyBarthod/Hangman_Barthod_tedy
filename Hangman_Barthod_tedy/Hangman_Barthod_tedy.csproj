@@ -116,9 +116,21 @@
     <Resource Include="Assete\Images\vies_7.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assete\Musique\icsilviu-savanna-drum-circle-564074.mp3">
+    <None Include="Assete\Musique\calme.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assete\motsPendu.txt" />
+    <Content Include="Assete\Musique\victoire.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assete\Musique\stress.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assete\Musique\defaite.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
