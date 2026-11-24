@@ -121,7 +121,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assete\motsPendu.txt" />
+    <Content Include="Assete\motsPendu.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assete\Musique\victoire.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
