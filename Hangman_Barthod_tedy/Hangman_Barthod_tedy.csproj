@@ -115,5 +115,10 @@
     <Resource Include="Assete\Images\vies_6.png" />
     <Resource Include="Assete\Images\vies_7.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Assete\Musique\icsilviu-savanna-drum-circle-564074.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

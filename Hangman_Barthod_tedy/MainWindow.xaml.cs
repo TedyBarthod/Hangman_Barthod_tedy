@@ -1,6 +1,6 @@
 ﻿// Projet : Hangman (jeu du pendu) - TP2 BTS CIEL 1
 // Auteur : Tedy Barthod
-// Rôle : gère le jeu (choix du mot, lettres, erreurs, gagné / perdu)
+// Rôle : gère le jeu (choix du mot, lettres, erreurs, chrono, musique)
 
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Hangman_Barthod_tedy
 {
@@ -33,8 +34,14 @@ namespace Hangman_Barthod_tedy
         int erreursMax = 7;       // nombre d'erreurs avant de perdre
         bool partieFinie = false; // true quand on a gagné ou perdu
 
+        DispatcherTimer timer;    // le chrono, il "tique" toutes les secondes
+        int temps = 60;           // secondes qui restent
+
         Button[] boutons;  // les 26 boutons lettres
         Image[] feuilles;  // les 7 feuilles des essais
+
+        // Lecteur pour la musique du jeu
+        MediaPlayer musique = new MediaPlayer();
 
         public MainWindow()
         {
@@ -46,19 +53,36 @@ namespace Hangman_Barthod_tedy
                                      BTN_S, BTN_T, BTN_U, BTN_V, BTN_W, BTN_X, BTN_Y, BTN_Z };
             feuilles = new Image[] { Feuille1, Feuille2, Feuille3, Feuille4, Feuille5, Feuille6, Feuille7 };
 
+            // On crée le chrono : il appelle timer_tick toutes les 1 seconde
+            timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 1);
+            timer.Tick += new EventHandler(timer_tick);
+
+            LancerMusique();
             Recommencer();
+        }
+
+        // Charge le fichier mp3 et lance la musique
+        private void LancerMusique()
+        {
+            Uri chemin = new Uri(@"Assete/Musique/icsilviu-savanna-drum-circle-564074.mp3", UriKind.Relative);
+            musique.Open(chemin);
+            musique.Play();
         }
 
         // Remet tout à zéro et lance une nouvelle partie
         private void Recommencer()
         {
             erreurs = 0;
+            temps = 60;
             partieFinie = false;
             ChoisirMot();
             ActiverLettres();
             AfficherMot();
             AfficherEssais();
             AfficherPendu();
+            AfficherTemps();
+            timer.Start();
         }
 
         // Tire un mot au hasard et prépare le mot caché
@@ -145,16 +169,47 @@ namespace Hangman_Barthod_tedy
             Img_Pendu.Source = new BitmapImage(new Uri(chemin, UriKind.Relative));
         }
 
+        // Affiche le temps qui reste
+        private void AfficherTemps()
+        {
+            TB_Temps.Text = "Temps : " + temps.ToString() + " s";
+        }
+
         // Renvoie true si toutes les lettres sont trouvées
         private bool Gagne()
         {
             return motAffiche == mot;
         }
 
-        // Renvoie true si le joueur a fait trop d'erreurs
+        // Renvoie true si trop d'erreurs ou plus de temps
         private bool Perdu()
         {
-            return erreurs >= erreursMax;
+            return erreurs >= erreursMax || temps <= 0;
+        }
+
+        // Regarde si la partie est finie (gagné ou perdu) et arrête le chrono
+        private void VerifierFin()
+        {
+            if (Gagne())
+            {
+                partieFinie = true;
+                timer.Stop();
+                TB_Essais.Text = "Gagné ! Bravo !";
+            }
+            else if (Perdu())
+            {
+                partieFinie = true;
+                timer.Stop();
+                TB_Essais.Text = "Perdu ! Le mot était " + mot;
+            }
+        }
+
+        // Appelée par le chrono toutes les secondes
+        private void timer_tick(object sender, EventArgs e)
+        {
+            temps = temps - 1;
+            AfficherTemps();
+            VerifierFin();
         }
 
         // Clic sur une lettre (les 26 boutons appellent cette méthode)
@@ -176,27 +231,26 @@ namespace Hangman_Barthod_tedy
             if (VerifierLettre(lettre))
             {
                 btn.Tag = "ok";
+                temps = temps + 3;   // bonne lettre : +3 secondes
             }
             else
             {
                 btn.Tag = "ko";
                 erreurs = erreurs + 1;
+                temps = temps - 5;   // mauvaise lettre : -5 secondes
+            }
+
+            // Le temps ne doit pas être négatif
+            if (temps < 0)
+            {
+                temps = 0;
             }
 
             AfficherMot();
             AfficherEssais();
             AfficherPendu();
-
-            if (Gagne())
-            {
-                partieFinie = true;
-                TB_Essais.Text = "Gagné ! Bravo !";
-            }
-            else if (Perdu())
-            {
-                partieFinie = true;
-                TB_Essais.Text = "Perdu ! Le mot était " + mot;
-            }
+            AfficherTemps();
+            VerifierFin();
         }
 
         // Clic sur Nouveau mot
